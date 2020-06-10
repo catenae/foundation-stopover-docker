@@ -1,5 +1,5 @@
-# Catenae Link base image
-# Copyright (C) 2017-2019 Rodrigo Martínez <dev@brunneis.com>
+# Catenae Stopover base image
+# Copyright (C) 2017-2020 Rodrigo Martínez <dev@brunneis.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -12,37 +12,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-FROM brunneis/python:3.7
+FROM brunneis/python:3.8
 
-ARG LIBRDKAFKA_VERSION
-ARG CONFLUENT_KAFKA_VERSION
 ARG ROCKSDB_VERSION
 
-# Build librdkafka
+# Build rocksdb
 RUN \
-    LIBRDKAFKA_BASE_URL=https://github.com/edenhill/librdkafka/archive \
+    ROCKSDB_BASE_URL=https://github.com/facebook/rocksdb/archive \
     && apt-get update \
     && dpkg-query -Wf '${Package}\n' | sort > init_pkgs \
     && apt-get -y install \
     build-essential \
     curl \
     && dpkg-query -Wf '${Package}\n' | sort > current_pkgs \
-    && apt-get -y install \
-    libssl-dev \
-    zlib1g-dev \
-    && curl -L $LIBRDKAFKA_BASE_URL/v$LIBRDKAFKA_VERSION.tar.gz -o librdkafka.tar.gz -s \
-    && tar xf librdkafka.tar.gz \
-    && cd librdkafka-$LIBRDKAFKA_VERSION \
-    && ./configure --prefix=/usr \
-    && make -j \
-    && make install \
-    && cd .. \
-    && rm -r librdkafka-$LIBRDKAFKA_VERSION \
-    && rm librdkafka.tar.gz
-
-# Build rocksdb
-RUN \
-    ROCKSDB_BASE_URL=https://github.com/facebook/rocksdb/archive \
     && apt-get install -y \
     libsnappy-dev \
     libbz2-dev \
@@ -60,22 +42,13 @@ RUN \
 RUN \
     pip install --upgrade pip \
     && pip install \
-    confluent-kafka==$CONFLUENT_KAFKA_VERSION \
-    easymongo \
-    easyaerospike \
-    easyrocks \
-    synced \
-    txlog \
+    stopover \
     orderedset \
-    lxml \
     pyyaml \
     dateutils \
     flask \
     flask-restful \
     flask_cors \
-    gunicorn==19.9.0 \
-    eventlet \
-    web3==5.0.0 \
     pickle5 \
     && apt-get -y purge $(diff -u init_pkgs current_pkgs | grep -E "^\+" | cut -d + -f2- | sed -n '1!p' | uniq) \
     && apt-get clean \
@@ -85,10 +58,7 @@ RUN \
 
 ENV \
     LD_LIBRARY_PATH=/usr/local/lib \
-    CATENAE_DOCKER=true \
-    JSONRPC_PORT=9494 \
-    JSONRPC_HOST=localhost \
-    JSONRPC_SCHEME=http
+    CATENAE_DOCKER=true
 
 WORKDIR /opt/catenae
 ENTRYPOINT ["python"]
