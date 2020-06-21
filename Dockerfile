@@ -39,17 +39,13 @@ RUN \
     && rm -r rocksdb-$ROCKSDB_VERSION \
     && rm rocksdb.tar.gz
 
+ENV UPDATE=1
+
 RUN \
     pip install --upgrade pip \
     && pip install \
     stopover \
     orderedset \
-    pyyaml \
-    dateutils \
-    flask \
-    flask-restful \
-    flask_cors \
-    pickle5 \
     && apt-get -y purge $(diff -u init_pkgs current_pkgs | grep -E "^\+" | cut -d + -f2- | sed -n '1!p' | uniq) \
     && apt-get clean \
     && rm -rf init_pkgs current_pkgs /root/.cache/pip \
