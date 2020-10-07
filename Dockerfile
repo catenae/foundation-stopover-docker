@@ -43,7 +43,8 @@ RUN \
 # Fix for Python 3.9
 RUN \
     curl -L https://github.com/cburgdorf/rusty-rlp/releases/download/0.1.15/rusty_rlp-0.1.15-cp38-cp38-manylinux1_x86_64.whl -o rusty_rlp-0.1.15-py3-none-any.whl -s \
-    && pip install rusty_rlp-0.1.15-py3-none-any.whl
+    && pip install rusty_rlp-0.1.15-py3-none-any.whl \
+    && rm rusty_rlp-0.1.15-py3-none-any.whl
 
 RUN \
     pip install --upgrade pip \
