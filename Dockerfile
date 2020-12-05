@@ -12,51 +12,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-FROM brunneis/python:3.8
-
-ARG ROCKSDB_VERSION
-
-# Build rocksdb
+FROM labteral/easyrocks
 RUN \
-    ROCKSDB_BASE_URL=https://github.com/facebook/rocksdb/archive \
-    && apt-get update \
+    apt-get update \
     && dpkg-query -Wf '${Package}\n' | sort > init_pkgs \
-    && apt-get -y install \
-    build-essential \
-    curl \
+    && apt-get -y install build-essential \
     && dpkg-query -Wf '${Package}\n' | sort > current_pkgs \
-    && apt-get install -y \
-    libgflags-dev \
-    libsnappy-dev \
-    zlib1g-dev \
-    libbz2-dev \
-    liblz4-dev \
-    libzstd-dev \
-    && curl -L $ROCKSDB_BASE_URL/v$ROCKSDB_VERSION.tar.gz -o rocksdb.tar.gz -s \
-    && tar xf rocksdb.tar.gz \
-    && cd rocksdb-$ROCKSDB_VERSION \
-    && DEBUG_LEVEL=0 make shared_lib install-shared \
-    && cd .. \
-    && rm -r rocksdb-$ROCKSDB_VERSION \
-    && rm rocksdb.tar.gz
-
-RUN \
-    pip install --upgrade pip \
+    && pip install --upgrade pip \
     && pip install \
-    cython==0.29.20 \
-    easyrocks \
-    stopover>=0.0.6b0 \
+    stopover \
     orderedset \
     easyweb3 \
     && apt-get -y purge $(diff -u init_pkgs current_pkgs | grep -E "^\+" | cut -d + -f2- | sed -n '1!p' | uniq) \
-    && apt-get clean \
-    && rm -rf init_pkgs current_pkgs /root/.cache/pip \
-    && find / -type d -name __pycache__ -exec rm -r {} \+ \
-    && echo "tcp 6 TCP\nudp 17 UDP" >> /etc/protocols
-
-ENV \
-    LD_LIBRARY_PATH=/usr/local/lib \
-    CATENAE_DOCKER=true
-
+    && apt-get clean
+ENV CATENAE_DOCKER=true
 WORKDIR /opt/catenae
 ENTRYPOINT ["python"]
