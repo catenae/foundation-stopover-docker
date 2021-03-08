@@ -20,9 +20,8 @@ RUN \
     && dpkg-query -Wf '${Package}\n' | sort > current_pkgs \
     && pip install --upgrade pip \
     && pip install \
-    stopover \
-    orderedset \
-    easyweb3 \
+    "stopover>=21.3.1" \
+    "orderedset==2.0.3" \
     && apt-get -y purge $(diff -u init_pkgs current_pkgs | grep -E "^\+" | cut -d + -f2- | sed -n '1!p' | uniq) \
     && apt-get clean
 ENV CATENAE_DOCKER=true
