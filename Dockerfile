@@ -1,5 +1,5 @@
 # Catenae Stopover base image
-# Copyright (C) 2017-2020 Rodrigo Martínez <dev@brunneis.com>
+# Copyright (C) 2017-2021 Rodrigo Martínez <dev@brunneis.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@ RUN \
     && dpkg-query -Wf '${Package}\n' | sort > current_pkgs \
     && pip install --upgrade pip \
     && pip install \
-    "stopover>=21.3.5" \
+    "stopover>=21.3.6" \
     "orderedset==2.0.3" \
     && apt-get -y purge $(diff -u init_pkgs current_pkgs | grep -E "^\+" | cut -d + -f2- | sed -n '1!p' | uniq) \
     && apt-get clean
